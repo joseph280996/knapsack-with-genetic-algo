@@ -1,71 +1,58 @@
-from validators import is_valid_choice
-
+from mappers.BoxMapper import mapInputToBox
+from models.Box import Box
+from utils import option_chooser_until_valid
 """
 Pulbic Methods
 """
 
 
-def get_inputs() -> tuple[list[int], int]:
+def run() -> list[Box]:
     """
     This function will prompt user input and generate appropriate data based on user command.
 
     Possible values:
         (1) Manually input all values of boxes + its important
-        (2) Auto generate the boxes values
-
-    Notes:
-        For manual, if the input is not in range from 1-10, it will continuously ask the user to reinput until success
+        (2) Use default values of the boxes
     """
-    input_choice = _get_box_values()
-    unordered_pancakes_stack = []
+    input_choice = _get_box_options()
+    box_list = []
 
     match (input_choice):
         case 1:
-            unordered_pancakes_stack = _get_user_input_box_values()
+            box_list = _get_user_input_box_values()
         case 2:
-            unordered_pancakes_stack = _generate_unsorted_continuous_values(10, 1, 10)
+            box_list = _auto_generate_bag_values()
 
-    algo_choice = _get_algo_choice()
-    return unordered_pancakes_stack, algo_choice
+    return box_list
 
 
 """
 Private Methods
 """
 
-def _is_list_has_non_digit_str(str_list: list[str]) -> bool:
-    return any(list(map(lambda s: not s.isdigit(), str_list)))
+def _auto_generate_bag_values() -> list[Box]:
+    return [Box(20, 6), Box(30, 5), Box(60, 8), Box(90, 7), Box(50, 6), Box(70, 9), Box(30, 4), Box(30, 5), Box(70, 4), Box(20, 9), Box(20, 2), Box(60, 1)]
 
-def _auto_generate_bag_values():
-
-
-def _get_box_values() -> int:
+def _get_box_options() -> int:
     param_options = (
         "Pick an option: \n"
         + "(1): Manually input the values of bags\n"
-        + "(2): Auto generate values of bags\n"
+        + "(2): Use default values for boxes\n"
         + "Your choice: "
     )
 
-    is_valid_command, input_choice = False, 0
-    while not is_valid_command:
-        command = input(param_options)
-        is_valid_command = is_valid_choice(command, [1, 2])
+    command = option_chooser_until_valid.run(param_options, [1,2])
 
-    if is_valid_command:
-        input_choice = int(command)
-
-    return input_choice
+    return int(command)
 
 
-def _get_user_input_box_values() -> list[int]:
-    is_user_input_valid, splitted_vals = False, []
+def _get_user_input_box_values() -> list[Box]:
+    splitted_vals = []
 
-    while not is_user_input_valid:
-        values = input("Enter the numbers, separated by spaces: ")
+    while True:
+        values = input("Enter the values of each bag in the form (w, v), separated by spaces: ")
         splitted_vals = values.strip().split()
-        is_user_input_valid = _is_list_has_non_digit_str(
-            splitted_vals
-        ) and _is_valid_list(splitted_vals)
-
-    return list(map(int, splitted_vals))
+        try:
+            return list(map(mapInputToBox, splitted_vals))
+        except Exception as e:
+            print(e)
