@@ -1,3 +1,4 @@
+from constants import CULL_RATE
 from models.Chromosome import Chromosome
 from .Phenotype import Phenotype
 
@@ -11,6 +12,10 @@ class Population():
     """
     def __init__(self, individuals: list[Phenotype]):
         self._individuals = individuals
+
+    def cull(self):
+        cull_idx = int(len(self._individuals) * CULL_RATE)
+        self._individuals = self._individuals[:cull_idx]
 
     @staticmethod
     def generate_random(population_len: int, chromosome_len: int) -> list[Chromosome]:

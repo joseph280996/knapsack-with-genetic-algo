@@ -2,8 +2,8 @@ from .Genotype import Genotype
 import random
 
 class Chromosome:
-    def __init__(self, chromosome: list[Genotype]):
-        self.chromosome = chromosome
+    def __init__(self, genotypes: list[Genotype]):
+        self.genotypes = genotypes
 
     @staticmethod
     def generate_random(length = 12) -> "Chromosome":
