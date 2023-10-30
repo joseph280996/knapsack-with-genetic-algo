@@ -6,6 +6,6 @@ def mapInputToBox(input: str) -> Box:
     if len(values) != 2:
         raise ValueError("Input is in invalid form")
 
-    weight, value = int(values[0]), int(values[1])
+    weight, value = int(values[0].strip()), int(values[1].strip())
     return Box(weight, value)
 
