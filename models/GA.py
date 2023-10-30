@@ -6,25 +6,20 @@ import time
 
 
 class KnapsackGA:
-    def __init__(self, boxes: list[Box], bag_max_weight:int, initial_population_len: int, end_condition: int, end_condition_settings):
+    def __init__(self, boxes: list[Box], bag_max_weight:int, initial_population_len: int, run_duration_ms: int, generation_count: int, should_bypass_convergence: bool):
         self.boxes = boxes
         self.bag_max_weight = bag_max_weight
         self._seen_individual_fitness = {}
         self.population = Population.generate_random(initial_population_len, len(boxes), self.fitness)
-        self.end_condition = end_condition
-        self.end_condition_settings = end_condition_settings
+        self.run_duration_ms = run_duration_ms
+        self.generation_count = generation_count
         self._generation_average_fitness = [self._calculate_generation_average_fitness()]
+        self.should_bypass_convergence = should_bypass_convergence
 
-    def evaluate_current_population(self) -> bool:
-        match(self.end_condition):
-            case 1: 
-                self.end_condition_settings["generations"] -= 1
-                return self.end_condition_settings["generations"] > 0
-            case 2:
-                return time.time() - self._start_time < self.end_condition_settings["run_period_in_ms"]
-            case _:
-                return not self._has_values_converged()
-
+    def should_stop(self) -> bool:
+        self.generation_count -= 1
+        running_period = time.time() - self._start_time
+        return self._has_values_converged() or running_period >= self.run_duration_ms or self.generation_count == 0 
 
     def fitness(self, individual: Chromosome):
         genotypes_tuple = tuple(individual.genotypes)
@@ -45,7 +40,7 @@ class KnapsackGA:
         best_individual = None
         self._start_time = time.time()
 
-        while self.evaluate_current_population():
+        while not self.should_stop():
             # rank individuals based on fitness value and record best fit individuals
             self.population.rank_individual()
             candidate = self.population.individuals[0]
@@ -78,6 +73,9 @@ class KnapsackGA:
 
 
     def _has_values_converged(self) -> bool:
+        if self.should_bypass_convergence:
+            return False
+
         if len(self._generation_average_fitness) == 1:
             return False
 

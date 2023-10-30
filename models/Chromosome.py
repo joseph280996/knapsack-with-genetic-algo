@@ -4,7 +4,7 @@ class Chromosome:
     """
     Class representation of the Chromosome. In our use case it is the list of all the boxes and whether it was picked or not
     """
-    mutation_rate = 0.1
+    mutation_rate = 0.01
     fitness = 0
 
     def __init__(self, genotypes: list[int]):
