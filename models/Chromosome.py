@@ -1,9 +1,15 @@
 import random
 
+
 class Chromosome:
     """
     Class representation of the Chromosome. In our use case it is the list of all the boxes and whether it was picked or not
+    Attributes:
+        genotypes: The list of genotypes for the current chromosome
+        mutation_rate: The chance of a mutation to occurs
+        fitness: The fitness value that was calculated for the current chromosome
     """
+
     mutation_rate = 0.01
     fitness = 0
 
@@ -11,7 +17,7 @@ class Chromosome:
         self.genotypes = genotypes
 
     @staticmethod
-    def generate_random(length = 12) -> "Chromosome":
+    def generate_random(length=12) -> "Chromosome":
         """
         Generate a chromosome of random gene
 
@@ -26,7 +32,6 @@ class Chromosome:
             new_population.append(random.choice([0, 1]))
 
         return Chromosome(new_population)
-
 
     def modify_gene(self, idx: int):
         """
@@ -49,11 +54,16 @@ class Chromosome:
         """
         return self._crossover(y_entity)
 
-    def mutate(self):
-        should_mutation_occurs = random.choices([True, False], [self.mutation_rate, 1 - self.mutation_rate])[0]
+    def mutate(self) -> None:
+        """
+        The mutation functionality to mutate random genes with a certain chance using multi-point mutation
+        """
+        should_mutation_occurs = random.choices(
+            [True, False], [self.mutation_rate, 1 - self.mutation_rate]
+        )[0]
         if should_mutation_occurs:
-            self._single_point_mutation()
-                
+            self._multi_point_mutation()
+
     def _crossover(self, y_entity: "Chromosome") -> "Chromosome":
         """
         The crossover functionality which is the core of reproduction to generate new individuals
@@ -65,17 +75,26 @@ class Chromosome:
             A new individuals
         """
         rand_idx_for_gene_swap = random.randint(1, len(self.genotypes) - 1)
-        child = Chromosome(self.genotypes[:rand_idx_for_gene_swap] + y_entity.genotypes[rand_idx_for_gene_swap:])
+        child = Chromosome(
+            self.genotypes[:rand_idx_for_gene_swap]
+            + y_entity.genotypes[rand_idx_for_gene_swap:]
+        )
         child.mutate()
 
         return child
 
-    def _single_point_mutation(self):
+    def _multi_point_mutation(self):
+        # Select random number of genes to mutate
         gene_len = len(self.genotypes)
         rand_gene_count_mutate = random.randint(1, gene_len - 1)
+
+        # Set of modified genes so that we don't modify it again
         modified_gene = set()
+
         while rand_gene_count_mutate > 0:
+            # Select random gene to mutate
             rand_gene_idx_to_mutate = random.randint(0, gene_len - 1)
+
             if rand_gene_idx_to_mutate not in modified_gene:
                 modified_gene.add(rand_gene_idx_to_mutate)
                 self.modify_gene(rand_gene_idx_to_mutate)

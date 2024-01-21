@@ -15,13 +15,24 @@ class Population():
         self._individuals = individuals
 
     def rank_individual(self):
-       self._individuals = sorted(self._individuals, key=lambda x: x.fitness, reverse=True)
+        """
+        This function will rank the individuals in the population by their fitness value.
+        """
+        self._individuals = sorted(self._individuals, key=lambda x: x.fitness, reverse=True)
 
     @property
     def individuals(self):
+        """
+        This function is a getter to get all the individuals of the current population.
+        Returns:
+            The list of individuals in the population
+        """
         return self._individuals
 
     def cull(self):
+        """
+        This function will cull the population by the given rate.
+        """
         cull_idx = int(len(self._individuals) * CULL_RATE)
         self._individuals = self._individuals[:cull_idx]
 
@@ -31,10 +42,12 @@ class Population():
         This function is for generating a random initial population for the genetic algorithm
 
         Args:
-            length: the length of the population
+            population_len: The length of the population.
+            chromosome_len: The length of the chromosome for each individuals.
+            fitness_func: The fitness function to calculate the initial fitness value of each individuals.
 
         Returns:
-            The list of Chromosome
+            The Population with list of individuals with random Chromosome.
         """
         new_population = []
         for _ in range(population_len):
